@@ -21,7 +21,7 @@ async def server_card():
                 "version": "1.0.0"
             },
             "authentication": {
-                "required": false
+                "required": False
             },
             "tools": [
                 {
