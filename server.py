@@ -7,6 +7,38 @@ import os
 from datetime import datetime
 from typing import Dict, Any
 from hello_agents.protocols import MCPServer
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+@app.get("/.well-known/mcp/server-card.json")
+async def server_card():
+    return JSONResponse(content={
+        "namespace": "weather",
+        "serviceId": "weather-mcp-server",
+        "version": "1.0.0",
+        "tools": [
+            {
+                "name": "get_weather",
+                "description": "Get current weather for a city",
+                "inputs": [{"name": "city", "type": "string", "required": True}],
+                "outputs": [{"name": "weather", "type": "string"}]
+            },
+            {
+                "name": "list_supported_cities",
+                "description": "List all supported cities",
+                "inputs": [],
+                "outputs": [{"name": "cities", "type": "array", "items": {"type": "string"}}]
+            },
+            {
+                "name": "get_server_info",
+                "description": "Get server information",
+                "inputs": [],
+                "outputs": [{"name": "info", "type": "object"}]
+            }
+        ]
+    })
 
 # 创建 MCP 服务器
 weather_server = MCPServer(name="weather-server", description="真实天气查询服务")
