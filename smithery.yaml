@@ -1,9 +1,10 @@
+schemaVersion: 1.0.0
 name: weather-mcp-server
 displayName: Weather MCP Server
 description: Real-time weather query MCP server based on HelloAgents framework
 version: 1.0.0
 author: HelloAgents Team
-homepage: https://github.com/yourusername/weather-mcp-server
+homepage: https://github.com/zzhRooT1998/weather-mcp-server
 license: MIT
 categories:
   - weather
@@ -13,17 +14,38 @@ tags:
   - real-time
   - helloagents
   - wttr
-runtime: container
-build:
-  dockerfile: Dockerfile
-  dockerBuildPath: .
+  - china
+
+runtime: stdio
 startCommand:
-  type: http
+  command: python
+  args:
+    - server.py
+parameters: []
+environment:
+  variables: []
 tools:
   - name: get_weather
-    description: Get current weather for a city
+    description: Get current weather for a specified city (Chinese cities or any global city)
+    inputSchema:
+      type: object
+      properties:
+        city:
+          type: string
+          description: City name in Chinese or English
+          examples: ["北京", "上海", "Beijing", "Shanghai"]
+      required: ["city"]
+  
   - name: list_supported_cities
-    description: List all supported cities
+    description: List all supported Chinese cities
+    inputSchema:
+      type: object
+      properties: {}
+
   - name: get_server_info
-    description: Get server information
+    description: Get server metadata including name, version, and available tools
+    inputSchema:
+      type: object
+      properties: {}
+resources: []
 

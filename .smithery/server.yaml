@@ -1,0 +1,80 @@
+# Smithery MCP Server Configuration
+# This file defines how Smithery interacts with your MCP server
+# Required for all Smithery submissions
+
+version: "1.0"
+
+# Server metadata
+server:
+  name: weather-mcp-server
+  displayName: Weather MCP Server
+  description: Real-time weather query MCP server for Chinese cities
+  version: "1.0.0"
+  homepage: https://github.com/zzhRooT1998/weather-mcp-server
+  documentation: https://github.com/zzhRooT1998/weather-mcp-server/blob/main/README.md
+
+# Transport configuration
+transport:
+  # stdin/stdout (mcp.jsonl) - Required for Smithery
+  stdinout:
+    enabled: true
+    protocol: mcp
+    format: jsonl
+  
+  # HTTP - Optional, for local testing
+  http:
+    enabled: false
+    port: 8081
+    path: /mcp
+
+# Tools schema
+tools:
+  - name: get_weather
+    description: Get current weather information for a specified city
+    inputSchema:
+      type: object
+      properties:
+        city:
+          type: string
+          description: City name in Chinese or English (e.g., "北京" or "Beijing")
+          examples: ["北京", "上海", "Beijing", "Shanghai"]
+      required: ["city"]
+  
+  - name: list_supported_cities
+    description: List all supported Chinese cities for weather queries
+    inputSchema:
+      type: object
+      properties: {}
+  
+  - name: get_server_info
+    description: Get server metadata including name, version, and available tools
+    inputSchema:
+      type: object
+      properties: {}
+
+# Environment variables (if any)
+environment:
+  variables: []
+  secrets: []
+
+# Resources and capabilities
+resources:
+  - type: tool
+    name: get_weather
+  - type: tool
+    name: list_supported_cities
+  - type: tool
+    name: get_server_info
+
+# Metadata
+metadata:
+  categories:
+    - weather
+    - data
+  tags:
+    - weather
+    - real-time
+    - helloagents
+    - wttr
+  license: MIT
+  author: HelloAgents Team

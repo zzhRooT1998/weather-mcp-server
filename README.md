@@ -38,19 +38,6 @@ python server.py
 }
 ```
 
-### 在 HelloAgents 中使用
-
-```python
-from hello_agents import SimpleAgent, HelloAgentsLLM
-from hello_agents.tools import MCPTool
-
-agent = SimpleAgent(name="天气助手", llm=HelloAgentsLLM())
-weather_tool = MCPTool(server_command=["python", "server.py"])
-agent.add_tool(weather_tool)
-
-response = agent.run("北京今天天气怎么样？")
-```
-
 ## API 工具
 
 ### get_weather
@@ -119,4 +106,8 @@ MIT License
 ## 作者
 
 HelloAgents Team
+
+## 源代码
+
+https://github.com/zzhRooT1998/weather-mcp-server
 

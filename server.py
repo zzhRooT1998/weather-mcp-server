@@ -7,55 +7,24 @@ import os
 from datetime import datetime
 from typing import Dict, Any
 from hello_agents.protocols import MCPServer
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 
-app = FastAPI()
-
-@app.get("/.well-known/mcp/server-card.json")
-async def server_card():
-    return JSONResponse(content={
-        {
-            "serverInfo": {
-                "name": "weather-mcp-server",
-                "version": "1.0.0"
-            },
-            "authentication": {
-                "required": False
-            },
-            "tools": [
-                {
-                    "name": "get_weather",
-                    "description": "Get current weather for a city",
-                    "inputs": [{"name": "city", "type": "string", "required": True}],
-                    "outputs": [{"name": "weather", "type": "string"}]
-                },
-                {
-                    "name": "list_supported_cities",
-                    "description": "List all supported cities",
-                    "inputs": [],
-                    "outputs": [{"name": "cities", "type": "array", "items": {"type": "string"}}]
-                },
-                {
-                    "name": "get_server_info",
-                    "description": "Get server information",
-                    "inputs": [],
-                    "outputs": [{"name": "info", "type": "object"}]
-                }
-            ],
-            "resources": [],
-            "prompts": []
-        }
-    })
 
 # 创建 MCP 服务器
 weather_server = MCPServer(name="weather-server", description="真实天气查询服务")
 
 CITY_MAP = {
-    "北京": "Beijing", "上海": "Shanghai", "广州": "Guangzhou",
-    "深圳": "Shenzhen", "杭州": "Hangzhou", "成都": "Chengdu",
-    "重庆": "Chongqing", "武汉": "Wuhan", "西安": "Xi'an",
-    "南京": "Nanjing", "天津": "Tianjin", "苏州": "Suzhou"
+    "北京": "Beijing",
+    "上海": "Shanghai",
+    "广州": "Guangzhou",
+    "深圳": "Shenzhen",
+    "杭州": "Hangzhou",
+    "成都": "Chengdu",
+    "重庆": "Chongqing",
+    "武汉": "Wuhan",
+    "西安": "Xi'an",
+    "南京": "Nanjing",
+    "天津": "Tianjin",
+    "苏州": "Suzhou",
 }
 
 
@@ -76,7 +45,7 @@ def get_weather_data(city: str) -> Dict[str, Any]:
         "condition": current["weatherDesc"][0]["value"],
         "wind_speed": round(float(current["windspeedKmph"]) / 3.6, 1),
         "visibility": float(current["visibility"]),
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
@@ -101,7 +70,7 @@ def get_server_info() -> str:
     info = {
         "name": "Weather MCP Server",
         "version": "1.0.0",
-        "tools": ["get_weather", "list_supported_cities", "get_server_info"]
+        "tools": ["get_weather", "list_supported_cities", "get_server_info"],
     }
     return json.dumps(info, ensure_ascii=False, indent=2)
 
@@ -113,17 +82,22 @@ weather_server.add_tool(get_server_info)
 
 
 if __name__ == "__main__":
-    # Smithery requires HTTP transport on PORT environment variable
-    port = int(os.getenv("PORT", 8081))
-    host = os.getenv("HOST", "0.0.0.0")
+    # Support both HTTP (local testing) and stdin/stdout (Smithery)
+    transport = os.getenv("MCP_TRANSPORT", "stdinout")
 
-    print(f"🌤️  Starting Weather MCP Server...")
-    print(f"📡 Transport: HTTP")
-    print(f"🌐 Host: {host}")
-    print(f"🔌 Port: {port}")
-    print(f"🔗 Endpoint: http://{host}:{port}/mcp")
-    print(f"✨ Ready to serve weather data!")
-
-    # Run with HTTP transport (required by Smithery)
-    weather_server.run(transport="http", host=host, port=port)
-
+    if transport == "http":
+        port = int(os.getenv("PORT", 8081))
+        host = os.getenv("HOST", "0.0.0.0")
+        print(f"🌤️  Starting Weather MCP Server...")
+        print(f"📡 Transport: HTTP")
+        print(f"🌐 Host: {host}")
+        print(f"🔌 Port: {port}")
+        print(f"🔗 Endpoint: http://{host}:{port}/mcp")
+        print(f"✨ Ready to serve weather data!")
+        weather_server.run(transport="http", host=host, port=port)
+    else:
+        # stdin/stdout transport (mcp.jsonl) - Required for Smithery
+        print(f"🌤️  Starting Weather MCP Server...")
+        print(f"📡 Transport: stdin/stdout (mcp.jsonl)")
+        print(f"✨ Ready to serve weather data!")
+        weather_server.run(transport="stdio")
